@@ -11,5 +11,5 @@ OBJECTS_DIR = ./obj/
 DESTDIR = ./bin/
 
 # Input
-HEADERS += include/ClockWindow.h
-SOURCES += src/ClockWindow.cc src/main.cc
+HEADERS += include/ClockWindow.h include/ClockDesign.h
+SOURCES += src/ClockWindow.cc src/main.cc src/ClockDesign.cc

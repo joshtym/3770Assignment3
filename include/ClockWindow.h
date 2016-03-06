@@ -2,6 +2,7 @@
 #define CLOCKWINDOW_H
 
 #include <QMainWindow>
+#include "ClockDesign.h"
 
 class QPushButton;
 class QTime;
@@ -19,8 +20,9 @@ class ClockWindow : public QMainWindow
 		void showTime();
 		
 	private:
+		ClockDesign* interface;
+		void resizeEvent(QResizeEvent*);
 		QString getTime();
-		QPushButton* quitButton;
 		QTimer* timer;
 		QLabel* time;
 };
