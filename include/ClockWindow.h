@@ -17,14 +17,12 @@ class ClockWindow : public QMainWindow
 		ClockWindow();
 		~ClockWindow();
 	private slots:
-		void showTime();
+		void updateTime();
 		
 	private:
 		ClockDesign* interface;
 		void resizeEvent(QResizeEvent*);
-		QString getTime();
 		QTimer* timer;
-		QLabel* time;
 		QWidget* centralWidget;
 };
 #endif

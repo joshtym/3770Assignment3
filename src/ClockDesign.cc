@@ -1,15 +1,19 @@
 #include <QtGui>
 #include <cmath>
+#include <iostream>
 #include "ClockDesign.h"
 
 ClockDesign::ClockDesign()
 {
 	PI = 3.1415926535897932384626;
+	currentHour = 0;
+	currentMinute = 0;
+	
 	interfaceDimensions = new QRect (200, 200, 100, 100);
 	
 	innerClockObjects.clear();
 	
-	for (int i = 0; i < 12; ++i)
+	for (int i = 0; i < 59; ++i)
 		innerClockObjects.push_back(new QRect);
 	
 	assignClockObjectDimensions();
@@ -18,6 +22,8 @@ ClockDesign::ClockDesign()
 ClockDesign::ClockDesign(int width, int height)
 {
 	PI = 3.1415926535897932384626;
+	currentHour = 0;
+	currentMinute = 0;
 	
 	int baseClockDiameter, x, y;
 	
@@ -38,7 +44,7 @@ ClockDesign::ClockDesign(int width, int height)
 	
 	innerClockObjects.clear();
 	
-	for (int i = 0; i < 12; ++i)
+	for (int i = 0; i < 60; ++i)
 		innerClockObjects.push_back(new QRect);
 		
 	assignClockObjectDimensions();
@@ -68,6 +74,15 @@ void ClockDesign::updateSizeParameters(int newWidth, int newHeight)
 	assignClockObjectDimensions();
 }
 
+void ClockDesign::clockUpdated(int hour, int minute)
+{
+	if (hour >= 12)
+		currentHour = hour - 12;
+	
+	currentMinute = minute;
+	update();
+}
+
 void ClockDesign::paintEvent(QPaintEvent* event)
 {
 	QPainter paint(this);
@@ -75,82 +90,62 @@ void ClockDesign::paintEvent(QPaintEvent* event)
 	paint.setPen(QPen(Qt::black, 2, Qt::SolidLine));
 	paint.drawEllipse(*interfaceDimensions);
 	
-	paint.setPen(QPen(Qt::white, 2, Qt::SolidLine));
-	paint.setBrush(QBrush(Qt::white, Qt::SolidPattern));
-	
-	for (int i = 0; i < 12; ++i)
+	for (int i = 0; i < 60; i++)
+	{
+		if (i == currentHour * 5 || i == currentMinute)
+		{
+			paint.setPen(QPen(Qt::blue, 2, Qt::SolidLine));
+			paint.setBrush(QBrush(Qt::blue, Qt::SolidPattern));
+		}
+		else
+		{
+			paint.setPen(QPen(Qt::white, 2, Qt::SolidLine));
+			paint.setBrush(QBrush(Qt::white, Qt::SolidPattern));
+		}
+		
 		paint.drawEllipse(*innerClockObjects[i]);
+	}
 }
 
 void ClockDesign::assignClockObjectDimensions()
 {
-	int innerRadius;
+	int innerRadius, innerRadiusSmaller, midX, midY, midXSmaller, midYSmaller, counter;
 	
-	innerClockObjects[0]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[0]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[0]->setX(interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[0]->width() / 2);
-	innerClockObjects[0]->setY(interfaceDimensions->y() + interfaceDimensions->height() / 80);
+	for (int i = 0; i < 60; ++i)
+	{
+		if (i % 5 == 0)
+		{
+			innerClockObjects[i]->setWidth(interfaceDimensions->width() / 20);
+			innerClockObjects[i]->setHeight(interfaceDimensions->height() / 20);
+		}
+		else
+		{
+			innerClockObjects[i]->setWidth(interfaceDimensions->width() / 50);
+			innerClockObjects[i]->setHeight(interfaceDimensions->height() / 50);
+		}
+	}
 	
-	innerRadius = (interfaceDimensions->y() + interfaceDimensions->height() / 2) - (innerClockObjects[0]->y() + innerClockObjects[0]->height() / 2);
+	innerRadius = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 80 - innerClockObjects[0]->height() / 2;
+	innerRadiusSmaller = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 40 - innerClockObjects[1]->height() / 2;
+	midX = interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[0]->width() / 2;
+	midY = interfaceDimensions->y() + interfaceDimensions->height() / 80 + innerRadius;
+	midXSmaller = interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[1]->width() / 2;
+	midYSmaller = interfaceDimensions->y() + interfaceDimensions->height() / 40 + innerRadiusSmaller;
+	counter = 15;
 	
-	innerClockObjects[1]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[1]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[1]->setX(innerClockObjects[0]->x() + (innerRadius * cos(PI / 3)));
-	innerClockObjects[1]->setY(innerClockObjects[0]->y() + (innerRadius - (innerRadius * sin(PI / 3))));
-	
-	innerClockObjects[2]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[2]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[2]->setX(innerClockObjects[0]->x() + (innerRadius * cos(PI / 6)));
-	innerClockObjects[2]->setY(innerClockObjects[0]->y() + (innerRadius - (innerRadius * sin(PI / 6))));
-	
-	innerClockObjects[3]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[3]->setHeight(interfaceDimensions->height() / 20);
-	//innerClockObjects[3]->setX(interfaceDimensions->x() + interfaceDimensions->width() - innerClockObjects[3]->width() - interfaceDimensions->width() / 80);
-	//innerClockObjects[3]->setY(interfaceDimensions->y() + interfaceDimensions->height() / 2 - innerClockObjects[3]->height() / 2);
-	innerClockObjects[3]->setX(innerClockObjects[0]->x() + innerRadius);
-	innerClockObjects[3]->setY(innerClockObjects[0]->y() + innerRadius);
-	
-	innerClockObjects[4]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[4]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[4]->setX(innerClockObjects[0]->x() + (innerRadius * cos(11 * PI / 6)));
-	innerClockObjects[4]->setY(innerClockObjects[0]->y() + innerRadius - (innerRadius * sin(11 * PI / 6)));
-	
-	innerClockObjects[5]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[5]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[5]->setX(innerClockObjects[0]->x() + (innerRadius * cos(5 * PI / 3)));
-	innerClockObjects[5]->setY(innerClockObjects[0]->y() + innerRadius - (innerRadius * sin(5 * PI / 3)));
-	
-	innerClockObjects[6]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[6]->setHeight(interfaceDimensions->height() / 20);
-	//innerClockObjects[6]->setX(interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[6]->width() / 2);
-	//innerClockObjects[6]->setY(interfaceDimensions->height() - innerClockObjects[6]->height() - interfaceDimensions->height() / 80);
-	innerClockObjects[6]->setX(innerClockObjects[0]->x());
-	innerClockObjects[6]->setY(innerClockObjects[0]->y() + 2 * innerRadius);
-	
-	innerClockObjects[7]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[7]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[7]->setX(innerClockObjects[0]->x() + (innerRadius * cos(4 * PI / 3)));
-	innerClockObjects[7]->setY(innerClockObjects[0]->y() + innerRadius - (innerRadius * sin(4 * PI / 3)));
-	
-	innerClockObjects[8]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[8]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[8]->setX(innerClockObjects[0]->x() + (innerRadius * cos(7 * PI / 6)));
-	innerClockObjects[8]->setY(innerClockObjects[0]->y() + innerRadius - (innerRadius * sin(7 * PI / 6)));
-	
-	innerClockObjects[9]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[9]->setHeight(interfaceDimensions->height() / 20);
-	//innerClockObjects[9]->setX(interfaceDimensions->x() + interfaceDimensions->width() / 80);
-	//innerClockObjects[9]->setY(interfaceDimensions->y() + interfaceDimensions->height() / 2 - innerClockObjects[9]->height() / 2);
-	innerClockObjects[9]->setX(innerClockObjects[0]->x() - innerRadius);
-	innerClockObjects[9]->setY(innerClockObjects[0]->y() + innerRadius);
-	
-	innerClockObjects[10]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[10]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[10]->setX(innerClockObjects[0]->x() + (innerRadius * cos(5 * PI / 6)));
-	innerClockObjects[10]->setY(innerClockObjects[0]->y() + innerRadius - (innerRadius * sin(5 * PI / 6)));
-	
-	innerClockObjects[11]->setWidth(interfaceDimensions->width() / 20);
-	innerClockObjects[11]->setHeight(interfaceDimensions->height() / 20);
-	innerClockObjects[11]->setX(innerClockObjects[0]->x() + (innerRadius * cos(2 * PI / 3)));
-	innerClockObjects[11]->setY(innerClockObjects[0]->y() + innerRadius - (innerRadius * sin(2 * PI / 3)));
+	for (int i = 0; i < 60; i++)
+	{
+		if (i % 5 == 0)
+		{
+			innerClockObjects[i]->setX(midX + (innerRadius * cos(counter * PI / 30)));
+			innerClockObjects[i]->setY(midY - (innerRadius * sin(counter * PI / 30)));
+		}
+		else
+		{
+			innerClockObjects[i]->setX(midXSmaller + (innerRadiusSmaller * cos(counter * PI / 30)));
+			innerClockObjects[i]->setY(midYSmaller - (innerRadiusSmaller * sin(counter * PI / 30)));
+		}
+		if (--counter < 0)
+			counter = 59;
+	}
 }
