@@ -3,34 +3,17 @@
 
 ClockWindow::ClockWindow()
 {
-	/*QDesktopWidget dw;
-	QRect mainScreenSize = dw.availableGeometry(dw.primaryScreen());
+	this->resize(600, 600);
+	interface = new ClockDesign(600, 600);
+	interface->updateSizeParameters(600, 600);
 	
-	int x = mainScreenSize.width() * 0.5;
-	int y = mainScreenSize.height() * 0.5;
-	
-	this->setFixedSize(x, y);*/
-	this->resize(600, 400);
-	interface = new ClockDesign(600, 400);
-	interface->resize(QSize(600, 400));
-	
-	QWidget* centralWidget = new QWidget;
-	
-	QVBoxLayout* clockInterface = new QVBoxLayout;
+	centralWidget = interface;
+	setCentralWidget(centralWidget);
 	
 	const QString text = getTime();
 	time = new QLabel(text);
 	
 	timer = new QTimer(this);
-	
-	setCentralWidget(centralWidget);
-
-	//clockInterface->addWidget(time);
-	
-	//primaryDisplayUnit->addLayout(clockInterface);
-	clockInterface->addWidget(interface);
-	
-	centralWidget->setLayout(clockInterface);
 	
 	connect(timer, SIGNAL(timeout()), this, SLOT(showTime()));
 	timer->start();

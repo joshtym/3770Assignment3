@@ -2,6 +2,7 @@
 #define CLOCKDESIGN_H
 
 #include <QWidget>
+#include <vector>
 
 class ClockDesign : public QWidget
 {
@@ -17,6 +18,9 @@ class ClockDesign : public QWidget
 		void paintEvent(QPaintEvent*);
 		
 	private:
+		void assignClockObjectDimensions();
+		double PI;
 		QRect* interfaceDimensions;
+		std::vector<QRect*> innerClockObjects;
 };
 #endif

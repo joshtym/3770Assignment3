@@ -25,5 +25,6 @@ class ClockWindow : public QMainWindow
 		QString getTime();
 		QTimer* timer;
 		QLabel* time;
+		QWidget* centralWidget;
 };
 #endif
