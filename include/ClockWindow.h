@@ -4,10 +4,8 @@
 #include <QMainWindow>
 #include "ClockDesign.h"
 
-class QPushButton;
 class QTime;
 class QTimer;
-class QLabel;
 
 class ClockWindow : public QMainWindow
 {
@@ -16,6 +14,7 @@ class ClockWindow : public QMainWindow
 	public:
 		ClockWindow();
 		~ClockWindow();
+		
 	private slots:
 		void updateTime();
 		

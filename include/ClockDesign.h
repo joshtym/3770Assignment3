@@ -13,7 +13,7 @@ class ClockDesign : public QWidget
 		ClockDesign(int, int);
 		~ClockDesign();
 		void updateSizeParameters(int, int);
-		void clockUpdated(int, int);
+		void clockUpdated(int, int, int, int);
 		
 	protected:
 		void paintEvent(QPaintEvent*);
@@ -21,9 +21,13 @@ class ClockDesign : public QWidget
 	private:
 		void assignClockObjectDimensions();
 		double PI;
+		bool isTransparent;
 		QRect* interfaceDimensions;
 		std::vector<QRect*> innerClockObjects;
+		std::vector<QRect*> clockMonthObjects;
 		int currentMinute;
 		int currentHour;
+		int currentMonth;
+		int currentDay;
 };
 #endif

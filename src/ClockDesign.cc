@@ -8,13 +8,18 @@ ClockDesign::ClockDesign()
 	PI = 3.1415926535897932384626;
 	currentHour = 0;
 	currentMinute = 0;
+	isTransparent = false;
 	
 	interfaceDimensions = new QRect (200, 200, 100, 100);
 	
 	innerClockObjects.clear();
+	clockMonthObjects.clear();
 	
 	for (int i = 0; i < 59; ++i)
 		innerClockObjects.push_back(new QRect);
+	
+	for (int i = 0; i < 12; ++i)
+		clockMonthObjects.push_back(new QRect);
 	
 	assignClockObjectDimensions();
 }
@@ -24,6 +29,7 @@ ClockDesign::ClockDesign(int width, int height)
 	PI = 3.1415926535897932384626;
 	currentHour = 0;
 	currentMinute = 0;
+	isTransparent = false;
 	
 	int baseClockDiameter, x, y;
 	
@@ -43,9 +49,13 @@ ClockDesign::ClockDesign(int width, int height)
 	interfaceDimensions = new QRect(x, y, baseClockDiameter, baseClockDiameter);
 	
 	innerClockObjects.clear();
+	clockMonthObjects.clear();
 	
 	for (int i = 0; i < 60; ++i)
 		innerClockObjects.push_back(new QRect);
+		
+	for (int i = 0; i < 12; ++i)
+		clockMonthObjects.push_back(new QRect);
 		
 	assignClockObjectDimensions();
 }
@@ -74,12 +84,16 @@ void ClockDesign::updateSizeParameters(int newWidth, int newHeight)
 	assignClockObjectDimensions();
 }
 
-void ClockDesign::clockUpdated(int hour, int minute)
+void ClockDesign::clockUpdated(int hour, int minute, int month, int day)
 {
 	if (hour >= 12)
 		currentHour = hour - 12;
+	else
+		currentHour = hour;
 	
 	currentMinute = minute;
+	currentMonth = month;
+	currentDay = day;
 	update();
 }
 
@@ -89,27 +103,65 @@ void ClockDesign::paintEvent(QPaintEvent* event)
 	paint.setBrush(QBrush(Qt::black, Qt::SolidPattern));
 	paint.setPen(QPen(Qt::black, 2, Qt::SolidLine));
 	paint.drawEllipse(*interfaceDimensions);
-	
-	for (int i = 0; i < 60; i++)
+		
+	for (int i = 0; i < 60; ++i)
 	{
-		if (i == currentHour * 5 || i == currentMinute)
+		if (i == currentHour * 5)
 		{
-			paint.setPen(QPen(Qt::blue, 2, Qt::SolidLine));
-			paint.setBrush(QBrush(Qt::blue, Qt::SolidPattern));
+			if (isTransparent)
+			{
+				paint.setPen(QPen(Qt::white, 0, Qt::SolidLine));
+				paint.setBrush(QBrush(Qt::blue, Qt::NoBrush));
+				isTransparent = false;
+			}
+			else
+			{
+				paint.setPen(QPen(Qt::white, 2, Qt::SolidLine));
+				paint.setBrush(QBrush(Qt::white, Qt::SolidPattern));
+				isTransparent = true;
+			}
+		}
+		else if (i <= currentMinute)
+		{
+			if (i % 5 == 0)
+			{
+				paint.setPen(QPen(Qt::white, 2, Qt::SolidLine));
+				paint.setBrush(QBrush(Qt::white, Qt::SolidPattern));
+			}
+			else
+			{
+				paint.setPen(QPen(Qt::blue, 2, Qt::SolidLine));
+				paint.setBrush(QBrush(Qt::blue, Qt::SolidPattern));
+			}
 		}
 		else
+		{
+			paint.setPen(QPen(Qt::white, 0, Qt::SolidLine));
+			paint.setBrush(QBrush(Qt::white, Qt::NoBrush));
+		}
+		
+		paint.drawEllipse(*innerClockObjects[i]);
+	}
+	
+	for (int i = 0; i < 12; ++i)
+	{
+		if (i < currentMonth)
 		{
 			paint.setPen(QPen(Qt::white, 2, Qt::SolidLine));
 			paint.setBrush(QBrush(Qt::white, Qt::SolidPattern));
 		}
-		
-		paint.drawEllipse(*innerClockObjects[i]);
+		else
+		{
+			paint.setPen(QPen(Qt::white, 0, Qt::SolidLine));
+			paint.setBrush(QBrush(Qt::white, Qt::NoBrush));
+		}
+		paint.drawEllipse(*clockMonthObjects[i]);
 	}
 }
 
 void ClockDesign::assignClockObjectDimensions()
 {
-	int innerRadius, innerRadiusSmaller, midX, midY, midXSmaller, midYSmaller, counter;
+	int hourRadius, minuteRadius, monthRadius, hourMidX, hourMidY, minutehourMidX, minutehourMidY, monthMidX, monthMidY, counter;
 	
 	for (int i = 0; i < 60; ++i)
 	{
@@ -117,6 +169,8 @@ void ClockDesign::assignClockObjectDimensions()
 		{
 			innerClockObjects[i]->setWidth(interfaceDimensions->width() / 20);
 			innerClockObjects[i]->setHeight(interfaceDimensions->height() / 20);
+			clockMonthObjects[i / 5]->setWidth(interfaceDimensions->width() / 30);
+			clockMonthObjects[i / 5]->setHeight(interfaceDimensions->height() / 30);
 		}
 		else
 		{
@@ -125,25 +179,30 @@ void ClockDesign::assignClockObjectDimensions()
 		}
 	}
 	
-	innerRadius = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 80 - innerClockObjects[0]->height() / 2;
-	innerRadiusSmaller = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 40 - innerClockObjects[1]->height() / 2;
-	midX = interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[0]->width() / 2;
-	midY = interfaceDimensions->y() + interfaceDimensions->height() / 80 + innerRadius;
-	midXSmaller = interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[1]->width() / 2;
-	midYSmaller = interfaceDimensions->y() + interfaceDimensions->height() / 40 + innerRadiusSmaller;
+	hourRadius = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 80 - innerClockObjects[0]->height() / 2;
+	minuteRadius = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 40 - innerClockObjects[1]->height() / 2;
+	monthRadius = interfaceDimensions->height() / 2 - interfaceDimensions->height() / 3 - clockMonthObjects[0]->height() / 2;
+	hourMidX = interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[0]->width() / 2;
+	hourMidY = interfaceDimensions->y() + interfaceDimensions->height() / 80 + hourRadius;
+	minutehourMidX = interfaceDimensions->x() + interfaceDimensions->width() / 2 - innerClockObjects[1]->width() / 2;
+	minutehourMidY = interfaceDimensions->y() + interfaceDimensions->height() / 40 + minuteRadius;
+	monthMidX = interfaceDimensions->x() + interfaceDimensions->width() / 2 - clockMonthObjects[0]->width() / 2;
+	monthMidY = interfaceDimensions->y() + interfaceDimensions->height() / 3 + monthRadius;
 	counter = 15;
 	
 	for (int i = 0; i < 60; i++)
 	{
 		if (i % 5 == 0)
 		{
-			innerClockObjects[i]->setX(midX + (innerRadius * cos(counter * PI / 30)));
-			innerClockObjects[i]->setY(midY - (innerRadius * sin(counter * PI / 30)));
+			innerClockObjects[i]->setX(hourMidX + (hourRadius * cos(counter * PI / 30)));
+			innerClockObjects[i]->setY(hourMidY - (hourRadius * sin(counter * PI / 30)));
+			clockMonthObjects[i / 5]->setX(monthMidX + (monthRadius * cos(counter * PI / 30)));
+			clockMonthObjects[i / 5]->setY(monthMidY - (monthRadius * sin(counter * PI / 30)));
 		}
 		else
 		{
-			innerClockObjects[i]->setX(midXSmaller + (innerRadiusSmaller * cos(counter * PI / 30)));
-			innerClockObjects[i]->setY(midYSmaller - (innerRadiusSmaller * sin(counter * PI / 30)));
+			innerClockObjects[i]->setX(minutehourMidX + (minuteRadius * cos(counter * PI / 30)));
+			innerClockObjects[i]->setY(minutehourMidY - (minuteRadius * sin(counter * PI / 30)));
 		}
 		if (--counter < 0)
 			counter = 59;
