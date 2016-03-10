@@ -20,14 +20,16 @@ class ClockDesign : public QWidget
 		
 	private:
 		void assignClockObjectDimensions();
+		void convertDayToString(int);
 		double PI;
 		bool isTransparent;
 		QRect* interfaceDimensions;
 		std::vector<QRect*> innerClockObjects;
 		std::vector<QRect*> clockMonthObjects;
+		QRect* textLocation;
 		int currentMinute;
 		int currentHour;
 		int currentMonth;
-		int currentDay;
+		QString currentDay;
 };
 #endif

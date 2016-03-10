@@ -9,8 +9,10 @@ ClockDesign::ClockDesign()
 	currentHour = 0;
 	currentMinute = 0;
 	isTransparent = false;
+	currentDay = "";
 	
 	interfaceDimensions = new QRect (200, 200, 100, 100);
+	textLocation = new QRect;
 	
 	innerClockObjects.clear();
 	clockMonthObjects.clear();
@@ -30,6 +32,7 @@ ClockDesign::ClockDesign(int width, int height)
 	currentHour = 0;
 	currentMinute = 0;
 	isTransparent = false;
+	currentDay = "";
 	
 	int baseClockDiameter, x, y;
 	
@@ -47,6 +50,7 @@ ClockDesign::ClockDesign(int width, int height)
 	}
 	
 	interfaceDimensions = new QRect(x, y, baseClockDiameter, baseClockDiameter);
+	textLocation = new QRect;
 	
 	innerClockObjects.clear();
 	clockMonthObjects.clear();
@@ -93,13 +97,17 @@ void ClockDesign::clockUpdated(int hour, int minute, int month, int day)
 	
 	currentMinute = minute;
 	currentMonth = month;
-	currentDay = day;
+	
+	convertDayToString(day);
+	
 	update();
 }
 
 void ClockDesign::paintEvent(QPaintEvent* event)
 {
 	QPainter paint(this);
+	QFont font = paint.font();
+	
 	paint.setBrush(QBrush(Qt::black, Qt::SolidPattern));
 	paint.setPen(QPen(Qt::black, 2, Qt::SolidLine));
 	paint.drawEllipse(*interfaceDimensions);
@@ -157,6 +165,11 @@ void ClockDesign::paintEvent(QPaintEvent* event)
 		}
 		paint.drawEllipse(*clockMonthObjects[i]);
 	}
+	
+	font.setPointSize(interfaceDimensions->width() / 10);
+	paint.setFont(font);
+	
+	paint.drawText(*textLocation, currentDay);
 }
 
 void ClockDesign::assignClockObjectDimensions()
@@ -190,6 +203,11 @@ void ClockDesign::assignClockObjectDimensions()
 	monthMidY = interfaceDimensions->y() + interfaceDimensions->height() / 3 + monthRadius;
 	counter = 15;
 	
+	textLocation->setX(monthMidX + (monthRadius * cos(3 * PI / 4)));
+	textLocation->setY(monthMidY - (monthRadius * sin(3 * PI / 4)));
+	textLocation->setWidth(monthRadius * 2);
+	textLocation->setHeight(monthRadius * 2);
+	
 	for (int i = 0; i < 60; i++)
 	{
 		if (i % 5 == 0)
@@ -206,5 +224,83 @@ void ClockDesign::assignClockObjectDimensions()
 		}
 		if (--counter < 0)
 			counter = 59;
+	}
+}
+
+void ClockDesign::convertDayToString(int day)
+{
+	currentDay.clear();
+	currentDay = "";
+	
+	switch(day / 10)
+	{
+		case 0:
+			currentDay.append("0");
+			break;
+		case 1:
+			currentDay.append("1");
+			break;
+		case 2:
+			currentDay.append("2");
+			break;
+		case 3:
+			currentDay.append("3");
+			break;
+		case 4:
+			currentDay.append("4");
+			break;
+		case 5:
+			currentDay.append("5");
+			break;
+		case 6:
+			currentDay.append("6");
+			break;
+		case 7:
+			currentDay.append("7");
+			break;
+		case 8:
+			currentDay.append("8");
+			break;
+		case 9:
+			currentDay.append("9");
+			break;
+		default:
+			break;
+	}
+	
+	switch(day % 10)
+	{
+		case 0:
+			currentDay.append("0");
+			break;
+		case 1:
+			currentDay.append("1");
+			break;
+		case 2:
+			currentDay.append("2");
+			break;
+		case 3:
+			currentDay.append("3");
+			break;
+		case 4:
+			currentDay.append("4");
+			break;
+		case 5:
+			currentDay.append("5");
+			break;
+		case 6:
+			currentDay.append("6");
+			break;
+		case 7:
+			currentDay.append("7");
+			break;
+		case 8:
+			currentDay.append("8");
+			break;
+		case 9:
+			currentDay.append("9");
+			break;
+		default:
+			break;
 	}
 }
