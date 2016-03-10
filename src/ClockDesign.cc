@@ -203,8 +203,8 @@ void ClockDesign::assignClockObjectDimensions()
 	monthMidY = interfaceDimensions->y() + interfaceDimensions->height() / 3 + monthRadius;
 	counter = 15;
 	
-	textLocation->setX(monthMidX + (monthRadius * cos(3 * PI / 4)));
-	textLocation->setY(monthMidY - (monthRadius * sin(3 * PI / 4)));
+	textLocation->setX(monthMidX + ((monthRadius - monthRadius / 2) * cos(3 * PI / 4)));
+	textLocation->setY(monthMidY - ((monthRadius - monthRadius / 2) * sin(3 * PI / 4)));
 	textLocation->setWidth(monthRadius * 2);
 	textLocation->setHeight(monthRadius * 2);
 	
