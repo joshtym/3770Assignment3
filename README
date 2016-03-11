@@ -1,0 +1,14 @@
+***************************************
+Clock Interface
+****************************************
+Note that I have altered the project file to accomodate for
+multiple directory structure, so in the case that you need to
+delete the project file, please remember to add the following arguments
+
+TEMPLATE = app
+TARGET = a3
+DEPENDPATH += . include src
+INCLUDEPATH += . include
+MOC_DIR = ./moc/
+OBJECTS_DIR = ./obj/
+DESTDIR = ./bin/
